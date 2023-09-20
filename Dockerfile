@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM rust:latest
+FROM rust:latest AS builder
 
 WORKDIR /usr/src/app
 
 COPY . .
 
 RUN cargo build --release
+
+FROM debian:bookworm-slim
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/target/release/modelardbd /usr/src/app/target/release/modelardbd
 
 CMD ["target/release/modelardbd", "edge", "data", "s3://modelardata"]
